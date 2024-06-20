@@ -90,8 +90,35 @@ def insert_element(background, element, mask, position):
 
     return background
 
+def lama_inpaint(img: np.ndarray, img_name: str, mask_name: str, inpainted_dir: str,
+                 dilated_mask_dir: str = 'dilated_masks', inpainted_imgs_dir: str = 'inpainted_imgs') -> np.ndarray:
+    """
+    Inpaints the given image using the corresponding inpainted and dilated mask images.
+
+    Args:
+        img (np.ndarray): The original image to be inpainted.
+        img_name (str): The name of the original image file.
+        mask_name (str): The name of the mask file.
+        inpainted_dir (str): The directory where the inpainted images are stored.
+        dilated_mask_dir (str, optional): The directory where the dilated mask images are stored. Defaults to 'dilated_masks'.
+        inpainted_imgs_dir (str, optional): The directory where the inpainted images are stored. Defaults to 'inpainted_imgs'.
+
+    Returns:
+        np.ndarray: The inpainted image.
+    """
+    img_name_no_ext = img_name[:img_name.find('.')]
+    dilated_mask_file = f'{img_name_no_ext}_mask00{int(mask_name[:mask_name.find('.')]) + 1}.png'
+
+    dilated_mask = cv2.imread(os.path.join(inpainted_dir, dilated_mask_dir, dilated_mask_file))
+    inpainted = cv2.imread(os.path.join(inpainted_dir, inpainted_imgs_dir, dilated_mask_file))
+    
+    boolMask = np.all(dilated_mask == 255, axis=-1)
+    img[boolMask] = inpainted[boolMask]
+
+    return img
+
 def backflip(img: np.ndarray, img_name: str, possible_aug: list, aug_prob: list, num_of_segments: int, segment_dir: str = 'segments',
-             inpaint_method: str = 'telea') -> np.ndarray:
+             inpaint_method: str = 'telea', lama_inpainted_dir: str = None) -> np.ndarray:
     """
     Apply backflip augmentation to an image.
 
@@ -109,7 +136,7 @@ def backflip(img: np.ndarray, img_name: str, possible_aug: list, aug_prob: list,
     """
     
     # Check inpaint method
-    if inpaint_method not in ['telea', 'ns', 'mean', 'median']:
+    if inpaint_method not in ['telea', 'ns', 'mean', 'median', 'lama']:
         raise ValueError('Inpaint method not recognized.')
 
     # Get the segment names
@@ -150,6 +177,10 @@ def backflip(img: np.ndarray, img_name: str, possible_aug: list, aug_prob: list,
             edges = cv2.bitwise_and(img, edges)
             median_color = np.median(edges[edges.sum(axis=2) > 0], axis=0)
             img[mask_bool] = median_color
+        elif inpaint_method == 'lama':
+            if lama_inpainted_dir is None:
+                raise ValueError('Lama inpainted directory not provided.')
+            img = lama_inpaint(img, img_name, segment, lama_inpainted_dir)
 
         # # Augmenting the segment
         bbox = get_segment_bounding_box(mask)
