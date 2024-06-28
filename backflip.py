@@ -193,7 +193,7 @@ def backflip(img: np.ndarray, img_name: str, possible_aug: list, aug_prob: list,
         # Inserting the augmented segment
         img = insert_element(img, augmented_segment['img'], augmented_segment['mask'], (bbox['center_y'], bbox['center_x']))
 
-        return img
+    return img
     
 def resize_image(image, length):
     """
@@ -210,7 +210,7 @@ def resize_image(image, length):
     # Get the current dimensions of the image
     height, width = image.shape[:2]
     
-    if height > width:
+    if height < width:
         is_height = True
     else:
         is_height = False
@@ -278,12 +278,18 @@ def pre_segmentate(image_dir: str, size: int, max_num_of_segments: int = 5, outp
         # Segment selection #################################################################
         masks = sorted(masks, key=lambda x: x['area'], reverse=True)
 
-        if len(masks) < max_num_of_segments:
-            selected = masks
-        else:
-            selected = masks[:max_num_of_segments]
+        selected = []
+        for mask in masks:
+            # Check if the bbox is too big
+            bboxArea = (mask['bbox'][2] - mask['bbox'][0]) * (mask['bbox'][3] - mask['bbox'][1])
+            imgArea = image.shape[0] * image.shape[1]
+            if bboxArea/imgArea <= 0.9:
+                selected.append(mask)
 
-        # Save masks
+            if len(selected) == max_num_of_segments:
+                break
+
+        #Save masks
         os.mkdir(os.path.join(output_dir_masks, image_name))
         for i,mask in enumerate(selected):
             toSave = mask['segmentation'].astype(np.uint8) * 255
