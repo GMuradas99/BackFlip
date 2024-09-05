@@ -194,38 +194,46 @@ def backflip(img: np.ndarray, img_name: str, possible_aug: list, aug_prob: list,
         img = insert_element(img, augmented_segment['img'], augmented_segment['mask'], (bbox['center_y'], bbox['center_x']))
 
     return img
-    
-def resize_image(image, length):
+
+def resize_image(image, length, resize_short_side=False):
     """
     Resize the given image while maintaining its aspect ratio.
 
     Parameters:
     image (numpy.ndarray): The input image to be resized.
     length (int): The desired length (either width or height) of the resized image.
+    resize_short_side (bool): If True, resize the shorter side to the given length. 
+                              If False, resize the longer side to the given length.
 
     Returns:
     numpy.ndarray: The resized image.
-
     """
     # Get the current dimensions of the image
     height, width = image.shape[:2]
-    
-    if height < width:
-        is_height = True
-    else:
-        is_height = False
 
-    if is_height:
-        # Calculate the new width based on the provided height
-        new_width = int((length / height) * width)
-        # Resize the image using the new dimensions
-        resized_image = cv2.resize(image, (new_width, length))
+    if resize_short_side:
+        if height < width:
+            # Calculate the new width based on the provided height
+            new_width = int((length / height) * width)
+            # Resize the image using the new dimensions
+            resized_image = cv2.resize(image, (new_width, length))
+        else:
+            # Calculate the new height based on the provided width
+            new_height = int((length / width) * height)
+            # Resize the image using the new dimensions
+            resized_image = cv2.resize(image, (length, new_height))
     else:
-        # Calculate the new height based on the provided width
-        new_height = int((length / width) * height)
-        # Resize the image using the new dimensions
-        resized_image = cv2.resize(image, (length, new_height))
-    
+        if height > width:
+            # Calculate the new width based on the provided height
+            new_width = int((length / height) * width)
+            # Resize the image using the new dimensions
+            resized_image = cv2.resize(image, (new_width, length))
+        else:
+            # Calculate the new height based on the provided width
+            new_height = int((length / width) * height)
+            # Resize the image using the new dimensions
+            resized_image = cv2.resize(image, (length, new_height))
+
     return resized_image
 
 def pre_segmentate(image_dir: str, size: int, max_num_of_segments: int = 5, output_dir_masks: str = 'segments', output_dir_img: str = None,
