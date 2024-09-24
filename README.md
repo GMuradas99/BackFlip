@@ -14,6 +14,48 @@ Backflip offers a wide variety of hyperparameters for data augmentation ranging 
 ![TAD66k_trans-1](https://github.com/user-attachments/assets/4a02c9a8-8d41-46e3-9a58-46b18724f668)
 ![TAD66k_seg-1](https://github.com/user-attachments/assets/e59d3c4f-d027-46d2-9fc2-1405812e905d)
 
+## Pre-segmenting a dataset
+
+A dataset can be easily segmented before training to optimize the process by using the function `pre_segmentate()`
+
+```
+      pre_segmentate(image_dir = '/example_dataset', size = 224, output_dir_masks='pre_segmented_data/segments', output_dir_img='pre_segmented_data/resized_images')
+```
+
+
+## BackFlipping one image
+
+Example code for applying BackFlip to one image can be found in [example_code.py](example_code.py). 
+
+1. Load the image:
+   ```
+      image_name = 'example.png'
+      img = cv2.cvtColor(cv2.imread(image_name), cv2.COLOR_BGR2RGB)
+    ```
+
+2. Indicate the augments and their probabilites:
+    ```
+    # Local augmentations
+      augmentations = [
+          hor_flip,
+          ver_flip
+      ]
+      # The probabilities
+      probabilities = [
+          0.8, 
+          0.2
+      ]
+    ```
+3. Perform BackFlip
+    ```
+      # Number of segments to augment
+      num_segments = 3
+      
+      # Call backflip
+      augmented_image = backflip(img, image_name, augmentations, probabilities, num_segments)
+    ```
+   
+
 
 
 
