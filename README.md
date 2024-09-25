@@ -2,6 +2,8 @@
 
 by Ombretta Strafforello, Gonzalo Muradas Odriozola, Fatemeh Behrad, Li-Wei Chen, Anne-Sofie Maerten, Derya Soydaner & Johan Wagemans
 
+[[arXiv](https://arxiv.org/abs/2408.14173)] [[BibTeX](https://scholar.googleusercontent.com/scholar.bib?q=info:jNOj_a8HTREJ:scholar.google.com/&output=citation&scisdr=ClE97pkpEO3561Ds110:AFWwaeYAAAAAZvPqz10XswVz7qpFvnNUC-PJ8hM&scisig=AFWwaeYAAAAAZvPqz8PTdMo4W2nc1Nm7jTdhtjA&scisf=4&ct=citation&cd=-1&hl=en)] 
+
 ## BackFlip
 
 We introduce BackFlip, a local data augmentation technique designed specifically for artistic image aesthetic assessme IAA. The pipeline utilizes Unsupervised Segmentation and Inpainting to locally transform areas of the image.
